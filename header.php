@@ -3,10 +3,15 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-// Initialize database tables if needed
+// Initialize database and tables if needed
 require_once 'config/database.php';
-$database = new Database();
-$database->createTables();
+try {
+    $database = new Database();
+    $database->createTables();
+} catch (Exception $e) {
+    error_log("Database initialization error: " . $e->getMessage());
+    // Continue execution - don't break the page if DB setup fails
+}
 
 // Check if user is logged in
 if (!isset($_SESSION['user_id'])) {

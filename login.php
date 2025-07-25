@@ -16,7 +16,7 @@ if ($_POST) {
     // Simple authentication (replace with proper database authentication)
     if ($email === 'user@pocketlegal.com' && $password === 'password123') {
         $_SESSION['user_id'] = 1;
-        $_SESSION['user_name'] = 'Pocketlegal';
+        $_SESSION['user_name'] = 'PocketLegal User';
         $_SESSION['user_email'] = $email;
         header('Location: index.php');
         exit();

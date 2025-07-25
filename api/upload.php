@@ -31,12 +31,6 @@ try {
     if (!file_exists($upload_dir)) {
         mkdir($upload_dir, 0777, true);
     }
-    
-    // Create contracts subdirectory
-    $contracts_dir = '../uploads/contracts/';
-    if (!file_exists($contracts_dir)) {
-        mkdir($contracts_dir, 0777, true);
-    }
 
     $uploaded_files = [];
     $errors = [];

@@ -1,16 +1,9 @@
 <?php
-// // Database configuration
-// putenv("DB_HOST=localhost");
-// putenv("DB_NAME=juriai_db");
-// putenv("DB_USER=juriai_user");
-// putenv("DB_PASS=PocketLegal@92717");
-
+// Database configuration
 define('DB_HOST', 'localhost');
-define('DB_NAME', 'juriai_db');        // or your DB name
-define('DB_USER', 'juriai_user');      // or your DB username
-define('DB_PASS', 'PocketLegal@92717');    // replace with actual password
-
-
+define('DB_NAME', 'pocketlegal_db');
+define('DB_USER', 'root');
+define('DB_PASS', '');
 
 class Database {
     private $host = DB_HOST;
@@ -50,6 +43,10 @@ class Database {
     public function createTables() {
         try {
             $conn = $this->getConnection();
+            
+            // Create database if not exists
+            $conn->exec("CREATE DATABASE IF NOT EXISTS " . $this->db_name);
+            $conn->exec("USE " . $this->db_name);
             
             // Create users table if not exists
             $conn->exec("CREATE TABLE IF NOT EXISTS users (
@@ -131,7 +128,7 @@ class Database {
             $stmt->execute(['user@pocketlegal.com']);
             if ($stmt->fetchColumn() == 0) {
                 $stmt = $conn->prepare("INSERT INTO users (name, email, password) VALUES (?, ?, ?)");
-                $stmt->execute(['Pocketlegal', 'user@pocketlegal.com', password_hash('password123', PASSWORD_DEFAULT)]);
+                $stmt->execute(['PocketLegal User', 'user@pocketlegal.com', password_hash('password123', PASSWORD_DEFAULT)]);
             }
             
             return true;

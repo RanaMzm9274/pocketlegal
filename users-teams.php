@@ -94,17 +94,34 @@ $user_name = $_SESSION['user_name'] ?? 'User';
                                         <?php echo date('j M Y', strtotime($user['created_at'])); ?>
                                     </div>
                                     <div class="col-span-3">
-                                        <select class="border border-gray-300 rounded px-3 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
-                                            <option selected>Owner</option>
+                                        <select class="border border-gray-300 rounded px-3 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" onchange="updateUserRole(<?php echo $user['id']; ?>, this.value)">
+                                            <option value="owner" <?php echo $user['id'] == 1 ? 'selected' : ''; ?>>Owner</option>
                                             <option>Admin</option>
                                             <option>Member</option>
                                             <option>Viewer</option>
                                         </select>
                                     </div>
                                     <div class="col-span-2 text-right">
-                                        <button onclick="showUserOptions(<?php echo $user['id']; ?>)" class="text-gray-400 hover:text-gray-600">
-                                            <i class="fas fa-ellipsis-h"></i>
-                                        </button>
+                                        <div class="relative">
+                                            <button onclick="toggleUserMenu(<?php echo $user['id']; ?>)" class="text-gray-400 hover:text-gray-600">
+                                                <i class="fas fa-ellipsis-h"></i>
+                                            </button>
+                                            <div id="userMenu<?php echo $user['id']; ?>" class="hidden absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg z-10 border">
+                                                <div class="py-1">
+                                                    <button onclick="editUser(<?php echo $user['id']; ?>)" class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                                        <i class="fas fa-edit mr-2"></i>Edit User
+                                                    </button>
+                                                    <button onclick="resetPassword(<?php echo $user['id']; ?>)" class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                                        <i class="fas fa-key mr-2"></i>Reset Password
+                                                    </button>
+                                                    <?php if ($user['id'] != $_SESSION['user_id']): ?>
+                                                    <button onclick="removeUser(<?php echo $user['id']; ?>)" class="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100">
+                                                        <i class="fas fa-trash mr-2"></i>Remove User
+                                                    </button>
+                                                    <?php endif; ?>
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -115,25 +132,19 @@ $user_name = $_SESSION['user_name'] ?? 'User';
 
             <!-- Pending Invites Tab Content -->
             <div id="pendingContent" class="tab-content hidden">
-                <div class="bg-white rounded-lg shadow-sm p-8 text-center">
-                    <i class="fas fa-envelope text-4xl text-gray-300 mb-4"></i>
-                    <h3 class="text-lg font-medium text-gray-900 mb-2">No pending invites</h3>
-                    <p class="text-gray-500 mb-4">Invite team members to collaborate on legal documents</p>
-                    <button onclick="openInviteModal()" class="text-blue-600 hover:text-blue-700 font-medium">
-                        <i class="fas fa-plus mr-2"></i>Invite user
-                    </button>
+                <div class="bg-white rounded-lg shadow-sm">
+                    <div id="pendingInvitesList">
+                        <!-- Pending invites will be loaded here -->
+                    </div>
                 </div>
             </div>
 
             <!-- Teams Tab Content -->
             <div id="teamsContent" class="tab-content hidden">
-                <div class="bg-white rounded-lg shadow-sm p-8 text-center">
-                    <i class="fas fa-users text-4xl text-gray-300 mb-4"></i>
-                    <h3 class="text-lg font-medium text-gray-900 mb-2">No teams created</h3>
-                    <p class="text-gray-500 mb-4">Create teams to organize users and manage permissions</p>
-                    <button onclick="openTeamModal()" class="text-blue-600 hover:text-blue-700 font-medium">
-                        <i class="fas fa-plus mr-2"></i>Create team
-                    </button>
+                <div class="bg-white rounded-lg shadow-sm">
+                    <div id="teamsList">
+                        <!-- Teams will be loaded here -->
+                    </div>
                 </div>
             </div>
         </div>
@@ -222,6 +233,16 @@ $user_name = $_SESSION['user_name'] ?? 'User';
         submenu.classList.toggle('hidden');
     }
 
+    // Close user menus when clicking outside
+    document.addEventListener('click', function(event) {
+        const userMenus = document.querySelectorAll('[id^="userMenu"]');
+        userMenus.forEach(menu => {
+            if (!menu.contains(event.target) && !event.target.closest('button[onclick*="toggleUserMenu"]')) {
+                menu.classList.add('hidden');
+            }
+        });
+    });
+
     function switchTab(tabName) {
         // Hide all tab contents
         document.querySelectorAll('.tab-content').forEach(content => {
@@ -241,6 +262,79 @@ $user_name = $_SESSION['user_name'] ?? 'User';
         const activeTab = document.getElementById(tabName + 'Tab');
         activeTab.classList.add('active', 'border-black', 'text-gray-900');
         activeTab.classList.remove('border-transparent', 'text-gray-500');
+        
+        // Load content based on tab
+        if (tabName === 'pending') {
+            loadPendingInvites();
+        } else if (tabName === 'teams') {
+            loadTeams();
+        }
+    }
+
+    function toggleUserMenu(userId) {
+        const menu = document.getElementById('userMenu' + userId);
+        // Hide all other menus first
+        document.querySelectorAll('[id^="userMenu"]').forEach(m => {
+            if (m.id !== 'userMenu' + userId) {
+                m.classList.add('hidden');
+            }
+        });
+        menu.classList.toggle('hidden');
+    }
+
+    function updateUserRole(userId, role) {
+        // Here you would typically send an AJAX request to update the user role
+        console.log('Updating user', userId, 'to role', role);
+        // For now, just show a message
+        if (role !== 'owner') {
+            alert('User role updated to: ' + role);
+        }
+    }
+
+    function editUser(userId) {
+        alert('Edit user functionality would be implemented here for user ID: ' + userId);
+    }
+
+    function resetPassword(userId) {
+        if (confirm('Are you sure you want to reset the password for this user?')) {
+            alert('Password reset functionality would be implemented here for user ID: ' + userId);
+        }
+    }
+
+    function removeUser(userId) {
+        if (confirm('Are you sure you want to remove this user? This action cannot be undone.')) {
+            alert('Remove user functionality would be implemented here for user ID: ' + userId);
+        }
+    }
+
+    function loadPendingInvites() {
+        const container = document.getElementById('pendingInvitesList');
+        // Simulate loading pending invites
+        container.innerHTML = `
+            <div class="p-8 text-center">
+                <i class="fas fa-envelope text-4xl text-gray-300 mb-4"></i>
+                <h3 class="text-lg font-medium text-gray-900 mb-2">No pending invites</h3>
+                <p class="text-gray-500 mb-4">Invite team members to collaborate on legal documents</p>
+                <button onclick="openInviteModal()" class="text-blue-600 hover:text-blue-700 font-medium">
+                    <i class="fas fa-plus mr-2"></i>Invite user
+                </button>
+            </div>
+        `;
+    }
+
+    function loadTeams() {
+        const container = document.getElementById('teamsList');
+        // Simulate loading teams
+        container.innerHTML = `
+            <div class="p-8 text-center">
+                <i class="fas fa-users text-4xl text-gray-300 mb-4"></i>
+                <h3 class="text-lg font-medium text-gray-900 mb-2">No teams created</h3>
+                <p class="text-gray-500 mb-4">Create teams to organize users and manage permissions</p>
+                <button onclick="openTeamModal()" class="text-blue-600 hover:text-blue-700 font-medium">
+                    <i class="fas fa-plus mr-2"></i>Create team
+                </button>
+            </div>
+        `;
     }
 
     function openInviteModal() {
@@ -261,10 +355,6 @@ $user_name = $_SESSION['user_name'] ?? 'User';
         document.getElementById('teamForm').reset();
     }
 
-    function showUserOptions(userId) {
-        alert('User options for user ID: ' + userId + '\nThis would show options like: Edit, Remove, Change Role, etc.');
-    }
-
     // Form submissions
     document.getElementById('inviteForm').addEventListener('submit', function(e) {
         e.preventDefault();
@@ -273,8 +363,12 @@ $user_name = $_SESSION['user_name'] ?? 'User';
         const message = document.getElementById('inviteMessage').value;
         
         // Here you would typically send the invite via AJAX
-        alert('Invite sent to: ' + email + ' with role: ' + role);
+        alert('Invite would be sent to: ' + email + ' with role: ' + role);
         closeInviteModal();
+        // Refresh pending invites if on that tab
+        if (!document.getElementById('pendingContent').classList.contains('hidden')) {
+            loadPendingInvites();
+        }
     });
 
     document.getElementById('teamForm').addEventListener('submit', function(e) {
@@ -283,8 +377,12 @@ $user_name = $_SESSION['user_name'] ?? 'User';
         const description = document.getElementById('teamDescription').value;
         
         // Here you would typically create the team via AJAX
-        alert('Team created: ' + name);
+        alert('Team would be created: ' + name);
         closeTeamModal();
+        // Refresh teams if on that tab
+        if (!document.getElementById('teamsContent').classList.contains('hidden')) {
+            loadTeams();
+        }
     });
 
     // Search functionality
@@ -292,5 +390,12 @@ $user_name = $_SESSION['user_name'] ?? 'User';
         const searchTerm = e.target.value.toLowerCase();
         // Implement search logic here
         console.log('Searching for:', searchTerm);
+    });
+
+    // Initialize
+    document.addEventListener('DOMContentLoaded', function() {
+        // Load initial content
+        loadPendingInvites();
+        loadTeams();
     });
 </script>

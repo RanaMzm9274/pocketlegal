@@ -270,8 +270,6 @@ $user_name = $_SESSION['user_name'] ?? 'User';
         selectedFiles.forEach((file, index) => {
             formData.append('documents[]', file);
         });
-        formData.append('user_id', <?php echo json_encode($_SESSION['user_id']); ?>);
-        formData.append('timestamp', new Date().toISOString());
 
         const uploadBtn = document.getElementById('uploadBtn');
         uploadBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Uploading...';
@@ -286,7 +284,6 @@ $user_name = $_SESSION['user_name'] ?? 'User';
             success: function(response) {
                 alert('Documents uploaded successfully!');
                 closeUploadModal();
-                // Refresh page to show new documents
                 setTimeout(() => {
                     location.reload();
                 }, 1000);
@@ -302,7 +299,7 @@ $user_name = $_SESSION['user_name'] ?? 'User';
             },
             complete: function() {
                 uploadBtn.innerHTML = '<i class="fas fa-upload mr-2"></i>Upload';
-                uploadBtn.disabled = false;
+                updateSubmitButton();
             }
         });
     }
