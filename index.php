@@ -288,6 +288,9 @@ $database->createTables();
                             <div class="text-xs text-gray-500">
                                 <p class="flex items-center justify-center gap-1">
                                     <span>💡</span>
+                            <div class="text-xs text-gray-500" id="editingStatus" style="display: none;">
+                                <span class="text-blue-600">✏️ Editing message - Press Enter to save, Escape to cancel</span>
+                            </div>
                                     <strong>Tip:</strong>
                                     <span>For best results, be specific in your questions</span>
                                 </p>
